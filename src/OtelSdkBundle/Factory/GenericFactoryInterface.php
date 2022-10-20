@@ -9,7 +9,6 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 interface GenericFactoryInterface
 {
-
     /**
      * @param string $buildClass
      * @param OptionsResolver|null $resolver

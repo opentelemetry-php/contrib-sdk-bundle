@@ -175,7 +175,7 @@ class Configuration implements ConfigurationInterface
                     ->defaultValue(PHP_INT_MAX)
                 ->end()
             ->end()
-            ;
+        ;
     }
 
     private static function createResourceAttributesNode(): NodeDefinition
@@ -205,7 +205,7 @@ class Configuration implements ConfigurationInterface
             ->useAttributeAsKey(self::NAME_KEY)
             ->prototype(self::SCALAR_NODE_TYPE)
             ->end()
-            ;
+        ;
     }
 
     private static function createSamplerSectionNode(): NodeDefinition
@@ -229,7 +229,7 @@ class Configuration implements ConfigurationInterface
                     ->append(self::createSamplerNode(self::NOT_SAMPLED_NODE, self::ALWAYS_OFF_SAMPLER))
                 ->end()
             ->end()
-            ;
+        ;
     }
 
     private static function createSamplerNode(string $name, string $default = self::SAMPLER_NODE_DEFAULT): NodeDefinition
@@ -276,7 +276,7 @@ class Configuration implements ConfigurationInterface
                 ->append(self::createIdNode())
                 ->append(self::createOptionsNodes())
             ->end()
-            ;
+        ;
     }
 
     private static function createSpanSectionNode(): NodeDefinition
@@ -287,7 +287,7 @@ class Configuration implements ConfigurationInterface
                 ->append(self::createSpanLimitsNode())
                 ->append(self::createSpanProcessors())
             ->end()
-            ;
+        ;
     }
 
     private static function createSpanLimitsNode(): NodeDefinition
@@ -302,7 +302,7 @@ class Configuration implements ConfigurationInterface
                 ->integerNode(self::ATTRS_EVENT_NODE)->defaultValue(self::LIMITS_COUNT_DEFAULT)->end()
                 ->integerNode(self::ATTRS_LINK_NODE)->defaultValue(self::LIMITS_COUNT_DEFAULT)->end()
             ->end()
-            ;
+        ;
     }
 
     private static function createSpanProcessors(): NodeDefinition
@@ -356,7 +356,7 @@ class Configuration implements ConfigurationInterface
                     ->append(self::createOptionsNodes())
                 ->end()
             ->end()
-            ;
+        ;
     }
 
     private static function createExporters(): NodeDefinition
@@ -389,7 +389,7 @@ class Configuration implements ConfigurationInterface
 
             ->end()
             ->end()
-            ;
+        ;
     }
 
     private static function createClassNode(): NodeDefinition

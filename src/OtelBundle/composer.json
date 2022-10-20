@@ -18,7 +18,12 @@
     },
     "autoload": {
         "psr-4": {
-            "OpenTelemetry\\Symfony\\OtelBundle\\": ""
+            "OpenTelemetry\\Symfony\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "OpenTelemetry\\Symfony\\Tests\\": "tests/"
         }
     }
 }
