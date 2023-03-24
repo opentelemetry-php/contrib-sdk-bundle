@@ -281,13 +281,17 @@ class OtelSdkExtension extends Extension implements LoggerAwareInterface
     {
         $id = $this->createExporterId($exporterKey);
         $options = $this->normalizeExporterOptions($config);
+       # echo "** \$exporterKey: $exporterKey - ".var_export($config, true)."\n";
         $definition =  self::createDefinition($this->resolveExporterClass($config))
             ->setFactory(
-                $this->createValidatedReference(
-                    $this->registerExporterFactoryDefinition($exporterKey, $config)
-                )
-            )
-            ->setArguments([$options]);
+                [
+                    $this->createValidatedReference(
+                        $this->registerExporterFactoryDefinition($exporterKey, $config)
+                    ),
+                    'create'
+                ]
+            );
+            //->setArguments([$options]);
 
         $this->registerService($id, $definition, false);
 
@@ -390,8 +394,10 @@ class OtelSdkExtension extends Extension implements LoggerAwareInterface
      */
     private function createExporterFactoryDefinition(string $exporterClass): Definition
     {
-        $definition = self::createDefinition(ExporterFactory::class);
-        $definition->setArguments([$exporterClass]);
+        //die('exporterClass: ' . $exporterClass);
+       # $definition = self::createDefinition(ExporterFactory::class);
+       # $definition->setArguments([$exporterClass]);
+        $definition = self::createDefinition($exporterClass);
 
         return $definition;
     }
@@ -403,9 +409,11 @@ class OtelSdkExtension extends Extension implements LoggerAwareInterface
     private function resolveExporterClass(array $config): string
     {
         if (in_array($config[Conf::TYPE_NODE], Conf::EXPORTERS_NODE_VALUES, true)) {
-            return ConfigMappings::SPAN_EXPORTERS[
-            $config[Conf::TYPE_NODE]
+            $f = ConfigMappings::SPAN_EXPORTER_FACTORIES[
+                $config[Conf::TYPE_NODE]
             ];
+           # echo " -- " . ($f) . "\n";
+            return $f;
         }
         if ($config[Conf::TYPE_NODE] === Conf::CUSTOM_TYPE) {
             if (isset($config[Conf::CLASS_NODE])) {

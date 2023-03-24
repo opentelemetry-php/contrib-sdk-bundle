@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace OpenTelemetry\Symfony\OtelSdkBundle\DependencyInjection;
 
+use OpenTelemetry\SDK\Trace\SpanExporter\SpanExporterFactoryInterface;
 use OpenTelemetry\SDK\Trace\SpanExporterInterface;
 use OpenTelemetry\Symfony\OtelSdkBundle\Util\ExporterDsnParser;
 use Psr\Log\LoggerInterface;
@@ -25,6 +26,7 @@ class Configuration implements ConfigurationInterface
     public const CUSTOM_TYPE = 'custom';
     public const DEFAULT_TYPE = 'default';
     public const CLASS_NODE = 'class';
+    public const FACTORY_NODE = 'factory';
     public const ID_NODE = 'id';
     public const RESOURCE_NODE = 'resource';
     public const LIMITS_NODE = 'limits';
@@ -94,13 +96,23 @@ class Configuration implements ConfigurationInterface
     public const OTLP_HTTP_EXPORTER = 'otlphttp';
     public const OTLP_GRPC_EXPORTER = 'otlpgrpc';
     public const ZIPKIN_TO_NEWRELIC_EXPORTER = 'zipkintonewrelic';
+    // public const EXPORTERS_NODE_VALUES = [
+    //     self::JAEGER_EXPORTER,
+    //     self::ZIPKIN_EXPORTER,
+    //     self::NEWRELIC_EXPORTER,
+    //     self::OTLP_HTTP_EXPORTER,
+    //     self::OTLP_GRPC_EXPORTER,
+    //     self::ZIPKIN_TO_NEWRELIC_EXPORTER,
+    // ];
+
+    // Using factories instead
+    public const ZIPKIN_EXPORTER_FACTORY = 'zipkin';
+    public const NEWRELIC_EXPORTER_FACTORY = 'newrelic';
+    public const OTLP_EXPORTER_FACTORY = 'otlp';
     public const EXPORTERS_NODE_VALUES = [
-        self::JAEGER_EXPORTER,
-        self::ZIPKIN_EXPORTER,
-        self::NEWRELIC_EXPORTER,
-        self::OTLP_HTTP_EXPORTER,
-        self::OTLP_GRPC_EXPORTER,
-        self::ZIPKIN_TO_NEWRELIC_EXPORTER,
+        self::ZIPKIN_EXPORTER_FACTORY,
+        self::NEWRELIC_EXPORTER_FACTORY,
+        self::OTLP_EXPORTER_FACTORY,
     ];
 
     // PRIVATE CONSTANTS
@@ -448,7 +460,6 @@ class Configuration implements ConfigurationInterface
             }
             if (isset($config[self::TYPE_NODE])) {
                 self::validateTypedExporterConfig($config);
-                
                 return $config;
             }
 
@@ -511,7 +522,7 @@ class Configuration implements ConfigurationInterface
             // custom span exporters need to implement OpenTelemetry\SDK\Trace\SpanExporterInterface
             self::validateCustomClassImplements(
                 $config[self::CLASS_NODE],
-                SpanExporterInterface::class,
+                SpanExporterFactoryInterface::class,
                 self::EXPORTER_HR
             );
         }
@@ -558,9 +569,10 @@ class Configuration implements ConfigurationInterface
         if (!self::classImplemets($fqcn, $interface)) {
             throw new ConfigurationException(
                 sprintf(
-                    'Custom %s class need to implement %s',
+                    'Custom %s class "%s" needs to implement %s',
                     $type,
-                    SpanExporterInterface::class
+                    $fqcn,
+                    $interface
                 )
             );
         }
