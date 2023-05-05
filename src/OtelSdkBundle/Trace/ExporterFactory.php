@@ -6,9 +6,6 @@ namespace OpenTelemetry\Symfony\OtelSdkBundle\Trace;
 
 use Http\Discovery\HttpClientDiscovery;
 use Http\Discovery\Psr17FactoryDiscovery;
-use OpenTelemetry\SDK\Common\Export\Http\PsrTransport;
-use OpenTelemetry\SDK\Common\Export\Http\PsrTransportFactory;
-use OpenTelemetry\SDK\Common\Export\TransportInterface;
 use OpenTelemetry\SDK\Trace\SpanExporterInterface;
 use OpenTelemetry\Symfony\OtelSdkBundle\Factory;
 use Psr\Http\Client\ClientInterface;

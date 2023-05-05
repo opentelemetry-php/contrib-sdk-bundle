@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace OpenTelemetry\Symfony\OtelSdkBundle\DependencyInjection;
 
 use OpenTelemetry\SDK\Common\Attribute\Attributes;
+use OpenTelemetry\SDK\Registry;
 use OpenTelemetry\SDK\Trace;
 use OpenTelemetry\Symfony\OtelSdkBundle\DependencyInjection\Configuration as Conf;
 use OpenTelemetry\Symfony\OtelSdkBundle\Trace\ExporterFactory;
@@ -20,6 +21,7 @@ use Symfony\Component\DependencyInjection\Extension\Extension;
 use Symfony\Component\DependencyInjection\Loader\PhpFileLoader;
 use Symfony\Component\DependencyInjection\Reference;
 use Throwable;
+use Webapp\Infrastructure\OpenTelemetry\GutsSpanExporterFactory;
 
 /**
  * @codeCoverageIgnore
@@ -347,9 +349,20 @@ class OtelSdkExtension extends Extension implements LoggerAwareInterface
      */
     private function isExporterClassConfiguration(array $config): bool
     {
-        if (in_array($config[Conf::TYPE_NODE], Conf::EXPORTERS_NODE_VALUES, true)) {
-            return true;
+        try {
+            if ($resolvedInstance = Registry::spanExporterFactory($config[Conf::TYPE_NODE])) {
+                unset($resolvedInstance);
+                return true;
+            }
+        } catch (RuntimeException) {
         }
+//        if (in_array($config[Conf::TYPE_NODE], Conf::EXPORTERS_NODE_VALUES, true)) {
+//            return true;
+//        }
+//        if ($config[Conf::TYPE_NODE] === 'guts') {
+//            //echo "*** guts special case ***\n";
+//            return true;
+//        }
         if ($config[Conf::TYPE_NODE] === Conf::CUSTOM_TYPE && isset($config[Conf::CLASS_NODE])) {
             return true;
         }
@@ -408,6 +421,14 @@ class OtelSdkExtension extends Extension implements LoggerAwareInterface
      */
     private function resolveExporterClass(array $config): string
     {
+        try {
+            if ($resolvedInstance = Registry::spanExporterFactory($config[Conf::TYPE_NODE])) {
+                $f = $resolvedInstance::class;
+              #  echo " -- " . ($f) . "\n";
+                return $f;
+            }
+        } catch (RuntimeException) {
+        }
         if (in_array($config[Conf::TYPE_NODE], Conf::EXPORTERS_NODE_VALUES, true)) {
             $f = ConfigMappings::SPAN_EXPORTER_FACTORIES[
                 $config[Conf::TYPE_NODE]
@@ -415,6 +436,9 @@ class OtelSdkExtension extends Extension implements LoggerAwareInterface
            # echo " -- " . ($f) . "\n";
             return $f;
         }
+//        if ($config[Conf::TYPE_NODE] === 'guts') {
+//            return GutsSpanExporterFactory::class;
+//        }
         if ($config[Conf::TYPE_NODE] === Conf::CUSTOM_TYPE) {
             if (isset($config[Conf::CLASS_NODE])) {
                 return $config[Conf::CLASS_NODE];
