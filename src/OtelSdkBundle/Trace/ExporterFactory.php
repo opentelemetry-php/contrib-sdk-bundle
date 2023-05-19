@@ -29,8 +29,6 @@ class ExporterFactory implements Factory\GenericFactoryInterface
         self::NAME_PARAM => 'service_name',
     ];
 
-    private string $currentUrl;
-
     use Factory\GenericFactoryTrait;
 
     public function build(array $options = []): SpanExporterInterface

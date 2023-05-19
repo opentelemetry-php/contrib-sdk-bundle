@@ -26,7 +26,6 @@ class Configuration implements ConfigurationInterface
     public const CUSTOM_TYPE = 'custom';
     public const DEFAULT_TYPE = 'default';
     public const CLASS_NODE = 'class';
-    public const FACTORY_NODE = 'factory';
     public const ID_NODE = 'id';
     public const RESOURCE_NODE = 'resource';
     public const LIMITS_NODE = 'limits';
@@ -96,16 +95,8 @@ class Configuration implements ConfigurationInterface
     public const OTLP_HTTP_EXPORTER = 'otlphttp';
     public const OTLP_GRPC_EXPORTER = 'otlpgrpc';
     public const ZIPKIN_TO_NEWRELIC_EXPORTER = 'zipkintonewrelic';
-    // public const EXPORTERS_NODE_VALUES = [
-    //     self::JAEGER_EXPORTER,
-    //     self::ZIPKIN_EXPORTER,
-    //     self::NEWRELIC_EXPORTER,
-    //     self::OTLP_HTTP_EXPORTER,
-    //     self::OTLP_GRPC_EXPORTER,
-    //     self::ZIPKIN_TO_NEWRELIC_EXPORTER,
-    // ];
 
-    // Using factories instead
+    // Declare Exporter Factories
     public const ZIPKIN_EXPORTER_FACTORY = 'zipkin';
     public const NEWRELIC_EXPORTER_FACTORY = 'newrelic';
     public const OTLP_EXPORTER_FACTORY = 'otlp';

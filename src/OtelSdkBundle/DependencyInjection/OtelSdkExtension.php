@@ -21,7 +21,6 @@ use Symfony\Component\DependencyInjection\Extension\Extension;
 use Symfony\Component\DependencyInjection\Loader\PhpFileLoader;
 use Symfony\Component\DependencyInjection\Reference;
 use Throwable;
-use Webapp\Infrastructure\OpenTelemetry\GutsSpanExporterFactory;
 
 /**
  * @codeCoverageIgnore
@@ -248,7 +247,7 @@ class OtelSdkExtension extends Extension implements LoggerAwareInterface
      */
     private function resolveExporterReference(string $exporterKey, array $config): Reference
     {
-        if ($this->isExporterClassConfiguration($config)) {
+        if ($this->isExporterFactoryConfiguration($config)) {
             return $this->createExporterClassReference($exporterKey, $config);
         }
         if ($this->isExporterReferenceConfiguration($config)) {
@@ -283,8 +282,7 @@ class OtelSdkExtension extends Extension implements LoggerAwareInterface
     {
         $id = $this->createExporterId($exporterKey);
         $options = $this->normalizeExporterOptions($config);
-       # echo "** \$exporterKey: $exporterKey - ".var_export($config, true)."\n";
-        $definition =  self::createDefinition($this->resolveExporterClass($config))
+        $definition =  self::createDefinition($this->resolveExporterFactoryClass($config))
             ->setFactory(
                 [
                     $this->createValidatedReference(
@@ -293,7 +291,6 @@ class OtelSdkExtension extends Extension implements LoggerAwareInterface
                     'create'
                 ]
             );
-            //->setArguments([$options]);
 
         $this->registerService($id, $definition, false);
 
@@ -306,7 +303,7 @@ class OtelSdkExtension extends Extension implements LoggerAwareInterface
      */
     private function normalizeExporterOptions(array $config): array
     {
-        $definedOptions = (ExporterFactory::create($this->resolveExporterClass($config)))
+        $definedOptions = (ExporterFactory::create($this->resolveExporterFactoryClass($config)))
             ->getOptionsResolver()
             ->getDefinedOptions();
 
@@ -347,7 +344,7 @@ class OtelSdkExtension extends Extension implements LoggerAwareInterface
      * @param array $config
      * @return bool
      */
-    private function isExporterClassConfiguration(array $config): bool
+    private function isExporterFactoryConfiguration(array $config): bool
     {
         try {
             if ($resolvedInstance = Registry::spanExporterFactory($config[Conf::TYPE_NODE])) {
@@ -356,13 +353,7 @@ class OtelSdkExtension extends Extension implements LoggerAwareInterface
             }
         } catch (RuntimeException) {
         }
-//        if (in_array($config[Conf::TYPE_NODE], Conf::EXPORTERS_NODE_VALUES, true)) {
-//            return true;
-//        }
-//        if ($config[Conf::TYPE_NODE] === 'guts') {
-//            //echo "*** guts special case ***\n";
-//            return true;
-//        }
+
         if ($config[Conf::TYPE_NODE] === Conf::CUSTOM_TYPE && isset($config[Conf::CLASS_NODE])) {
             return true;
         }
@@ -386,7 +377,7 @@ class OtelSdkExtension extends Extension implements LoggerAwareInterface
      */
     private function registerExporterFactoryDefinition(string $exporterKey, array $config): string
     {
-        $class = $this->resolveExporterClass($config);
+        $class = $this->resolveExporterFactoryClass($config);
 
         $id = self::concatId(
             ServiceHelper::classToId(SpanExporters::NAMESPACE) . '.' . self::FACTORY_SUFFIX,
@@ -405,12 +396,9 @@ class OtelSdkExtension extends Extension implements LoggerAwareInterface
      * @param string $exporterClass
      * @return Definition
      */
-    private function createExporterFactoryDefinition(string $exporterClass): Definition
+    private function createExporterFactoryDefinition(string $exporterFactoryClass): Definition
     {
-        //die('exporterClass: ' . $exporterClass);
-       # $definition = self::createDefinition(ExporterFactory::class);
-       # $definition->setArguments([$exporterClass]);
-        $definition = self::createDefinition($exporterClass);
+        $definition = self::createDefinition($exporterFactoryClass);
 
         return $definition;
     }
@@ -419,7 +407,7 @@ class OtelSdkExtension extends Extension implements LoggerAwareInterface
      * @param array $config
      * @return string
      */
-    private function resolveExporterClass(array $config): string
+    private function resolveExporterFactoryClass(array $config): string
     {
         try {
             if ($resolvedInstance = Registry::spanExporterFactory($config[Conf::TYPE_NODE])) {
@@ -436,9 +424,6 @@ class OtelSdkExtension extends Extension implements LoggerAwareInterface
            # echo " -- " . ($f) . "\n";
             return $f;
         }
-//        if ($config[Conf::TYPE_NODE] === 'guts') {
-//            return GutsSpanExporterFactory::class;
-//        }
         if ($config[Conf::TYPE_NODE] === Conf::CUSTOM_TYPE) {
             if (isset($config[Conf::CLASS_NODE])) {
                 return $config[Conf::CLASS_NODE];
