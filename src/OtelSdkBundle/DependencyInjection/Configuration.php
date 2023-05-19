@@ -100,7 +100,7 @@ class Configuration implements ConfigurationInterface
     public const ZIPKIN_EXPORTER_FACTORY = 'zipkin';
     public const NEWRELIC_EXPORTER_FACTORY = 'newrelic';
     public const OTLP_EXPORTER_FACTORY = 'otlp';
-    public const EXPORTERS_NODE_VALUES = [
+    public const EXPORTER_FACTORY_VALUES = [
         self::ZIPKIN_EXPORTER_FACTORY,
         self::NEWRELIC_EXPORTER_FACTORY,
         self::OTLP_EXPORTER_FACTORY,
@@ -498,19 +498,19 @@ class Configuration implements ConfigurationInterface
 
     private static function validateCustomExporterConfig(array $config)
     {
-        // custom exporters need class or id provided.
+        // custom exporter factories need class or id provided.
         self::validateCustomService(
             $config,
             self::EXPORTER_HR
         );
 
         if (isset($config[self::CLASS_NODE])) {
-            // custom exporters classes need to be a valid FQCN
+            // custom exporter factory classes need to be valid FQCNs
             self::validateCustomClass(
                 $config[self::CLASS_NODE],
                 self::EXPORTER_HR
             );
-            // custom span exporters need to implement OpenTelemetry\SDK\Trace\SpanExporterInterface
+            // custom span exporter factories need to implement OpenTelemetry\SDK\Trace\SpanExporterFactoryInterface
             self::validateCustomClassImplements(
                 $config[self::CLASS_NODE],
                 SpanExporterFactoryInterface::class,

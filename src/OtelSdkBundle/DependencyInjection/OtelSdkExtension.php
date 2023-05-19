@@ -411,18 +411,14 @@ class OtelSdkExtension extends Extension implements LoggerAwareInterface
     {
         try {
             if ($resolvedInstance = Registry::spanExporterFactory($config[Conf::TYPE_NODE])) {
-                $f = $resolvedInstance::class;
-              #  echo " -- " . ($f) . "\n";
-                return $f;
+                return $resolvedInstance::class;
             }
         } catch (RuntimeException) {
         }
-        if (in_array($config[Conf::TYPE_NODE], Conf::EXPORTERS_NODE_VALUES, true)) {
-            $f = ConfigMappings::SPAN_EXPORTER_FACTORIES[
+        if (in_array($config[Conf::TYPE_NODE], Conf::EXPORTER_FACTORY_VALUES, true)) {
+            return ConfigMappings::SPAN_EXPORTER_FACTORIES[
                 $config[Conf::TYPE_NODE]
             ];
-           # echo " -- " . ($f) . "\n";
-            return $f;
         }
         if ($config[Conf::TYPE_NODE] === Conf::CUSTOM_TYPE) {
             if (isset($config[Conf::CLASS_NODE])) {
@@ -434,7 +430,7 @@ class OtelSdkExtension extends Extension implements LoggerAwareInterface
             sprintf(
                 'Exporter must either be one of the following types: %s, %s ',
                 Conf::CUSTOM_TYPE,
-                implode(', ', Conf::EXPORTERS_NODE_VALUES)
+                implode(', ', Conf::EXPORTER_FACTORY_VALUES)
             )
         );
     }
