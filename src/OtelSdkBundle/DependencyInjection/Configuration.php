@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace OpenTelemetry\Symfony\OtelSdkBundle\DependencyInjection;
 
 use OpenTelemetry\SDK\Trace\SpanExporter\SpanExporterFactoryInterface;
-use OpenTelemetry\SDK\Trace\SpanExporterInterface;
 use OpenTelemetry\Symfony\OtelSdkBundle\Util\ExporterDsnParser;
 use Psr\Log\LoggerInterface;
 use ReflectionClass;
